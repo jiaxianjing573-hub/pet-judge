@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>宠物呵护小判官</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#2b2b28; --sub:#7a776e;
+    --accent:#e8853b; --accent2:#4a9d6e; --danger:#d05a4e;
+    --line:#e6e2d8; --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);max-width:560px;margin:0 auto;padding:0 14px 60px;font-size:15px;line-height:1.6}
+  header{display:flex;align-items:center;padding:16px 2px 12px}
+  header h1{font-size:20px;font-weight:700}
+  header h1 span{color:var(--accent)}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+  .sec h2{font-size:14px;color:var(--sub);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  input[type=text],input[type=password],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;background:#fbfaf7;color:var(--ink);outline:none}
+  input:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:80px}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .btn{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+  .btn:active{opacity:.7}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-green{background:var(--accent2);color:#fff}
+  .btn-ghost{background:#f0ede5;color:var(--ink)}
+  .btn-block{width:100%;margin-top:10px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .hint{font-size:12px;color:var(--sub);margin-top:8px}
+  .player-box{margin-top:12px;border-radius:12px;overflow:hidden;background:#000;display:none}
+  .player-box iframe,.player-box video{width:100%;aspect-ratio:16/9;display:block;border:none}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tab{flex:1;text-align:center;padding:8px;border-radius:10px;background:#f0ede5;font-size:13px;cursor:pointer;color:var(--sub)}
+  .tab.on{background:var(--ink);color:#fff}
+  .pane{display:none}.pane.on{display:block}
+  details{border:1px solid var(--line);border-radius:10px;margin-top:8px;background:#fbfaf7}
+  details summary{padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--sub)}
+  details .txt{padding:0 12px 10px;font-size:13px;white-space:pre-wrap;max-height:220px;overflow:auto}
+  .status{font-size:13px;margin-top:10px;color:var(--sub);display:none}
+  .status.show{display:flex;align-items:center;gap:8px}
+  .video-info{display:none;margin-top:10px;padding:10px 12px;border:1px solid #c9e4d4;border-radius:10px;background:#eff8f2;font-size:13px}
+  .video-info.show{display:block}
+  .video-info .meta{color:var(--sub);font-size:12px;margin-top:3px}
+  .resolve-error{display:none;margin-top:10px;padding:11px 12px;border:1px solid #efc7c1;border-radius:10px;background:#fff2f0;font-size:12px;color:#7d3d36}
+  .resolve-error.show{display:block}
+  .resolve-error b{display:block;font-size:13px;margin-bottom:4px}
+  .resolve-error ol{padding-left:20px;margin:5px 0}
+  .pipeline{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .pipeline.show{display:block}
+  .pipe-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:9px}
+  .pipe-time{font-size:12px;font-weight:400;color:var(--sub)}
+  .pipe-eta{font-size:11px;color:var(--sub);margin:-5px 0 8px}
+  .pipe-cancel{border:none;background:none;color:var(--sub);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;margin-left:10px}
+  .pipe-step{display:grid;grid-template-columns:22px 1fr;gap:7px;padding:6px 0;color:var(--sub);font-size:12px}
+  .pipe-step .dot{width:18px;height:18px;border-radius:50%;background:#e5e1d8;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px}
+  .pipe-step.active{color:var(--ink)}
+  .pipe-step.active .dot{background:var(--accent);color:#fff;animation:pulse 1.2s infinite}
+  .pipe-step.done .dot{background:var(--accent2);color:#fff}
+  .pipe-step.error{color:var(--danger)}
+  .pipe-step.error .dot{background:var(--danger);color:#fff}
+  .pipe-step b{display:block;font-size:13px;color:inherit}
+  .pipe-detail{line-height:1.5;word-break:break-word}
+  .pipe-bar{height:5px;border-radius:4px;background:#e7e2d8;overflow:hidden;margin-top:5px}
+  .pipe-bar span{display:block;width:0;height:100%;background:var(--accent2);transition:width .2s}
+  .frame-strip{display:none;margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
+  .frame-strip.show{display:block}
+  .fs-title{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px}
+  .fs-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+  .fs-scroll img{height:54px;border-radius:6px;border:1px solid var(--line);flex:none;animation:fadein .45s}
+  .chip-row{display:none;margin-top:9px;font-size:12px;color:var(--sub);line-height:2}
+  .chip-row.show{display:block}
+  .chip{display:inline-block;background:#fdeedd;color:var(--accent);border-radius:20px;padding:2px 10px;margin-right:5px;font-size:12px;animation:pop .35s}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+  .detect-list{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .detect-list.show{display:block}
+  .detect-head{font-size:13px;font-weight:700;margin-bottom:4px}
+  .detect-item{font-size:13px;padding:6px 0;border-top:1px dashed var(--line);display:flex;gap:7px;align-items:flex-start;animation:fadein .4s}
+  .detect-item .st{flex:none;font-size:11px;margin-top:2px}
+  .cmt-box{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .cmt-box.show{display:block}
+  .cmt-head{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .cmt-badge{font-size:10px;color:#fff;background:#b8b2a4;border-radius:5px;padding:1px 6px;font-weight:400}
+  .cmt-item{border-top:1px dashed var(--line);padding:7px 0;font-size:13px;animation:fadein .4s}
+  .cmt-item:first-child{border-top:none}
+  .cmt-user{color:var(--sub);font-size:12px}
+  .cmt-likes{color:var(--sub);font-size:11px;float:right}
+  .live-output{display:none;margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
+  .live-output.show{display:block}
+  .live-title{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px}
+  .live-grid{display:grid;grid-template-columns:1fr;gap:6px}
+  .live-pane{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
+  .live-pane b{display:block;font-size:11px;color:var(--accent);margin-bottom:3px}
+  .live-text{font-size:12px;white-space:pre-wrap;max-height:130px;overflow:auto;color:var(--ink);word-break:break-word}
+  .pipe-tech{display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:7px;font-size:11px;color:var(--sub)}
+  .pipe-tech.show{display:block}
+  .pipe-tech summary{cursor:pointer}
+  .pipe-tech div{margin-top:5px;word-break:break-word;white-space:pre-wrap}
+  @keyframes pulse{50%{opacity:.55;transform:scale(.9)}}
+  .spinner{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .progressbar{font-size:12px;color:var(--sub);text-align:center;margin-bottom:8px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fffdf8;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .card .tag{font-size:11px;color:var(--accent);background:#fdeedd;border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:8px}
+  .card .claim{font-size:16px;font-weight:600;line-height:1.5}
+  .judge-btns{display:flex;gap:10px;margin-top:14px}
+  .judge-btns .btn{flex:1;padding:12px}
+  .verdict{margin-top:14px;border-radius:12px;padding:12px;display:none;font-size:14px}
+  .verdict.right{background:#e9f5ee;border:1px solid #bfe0cc}
+  .verdict.wrong{background:#fbeae8;border:1px solid #f0c8c3}
+  .verdict .head{font-weight:700;margin-bottom:6px}
+  .verdict .src{font-size:12px;color:var(--sub);margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .score{font-size:13px;color:var(--sub)}
+  .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(40,40,36,.92);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:85vw}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐾 宠物呵护<span>小判官</span></h1>
+</header>
+
+<!-- 视频入口 -->
+<section class="sec">
+  <div class="tabs">
+    <div class="tab on" data-pane="pUrl" onclick="switchTab(this)">网址链接</div>
+    <div class="tab" data-pane="pFile" onclick="switchTab(this)">本地视频</div>
+  </div>
+  <div class="pane on" id="pUrl">
+    <input type="text" id="urlInput" placeholder="粘贴 B站 / 抖音链接，整段分享文字也行…">
+    <div class="row">
+      <button class="btn btn-primary" id="btnLoadUrl" style="flex:1" onclick="loadUrl()">🔍 解析并播放</button>
+    </div>
+    <div class="status" id="stResolve"><div class="spinner"></div><span></span></div>
+    <div class="video-info" id="videoInfo"><b id="videoTitle"></b><div class="meta" id="videoMeta"></div></div>
+    <div class="resolve-error" id="resolveError"><b id="resolveErrorTitle"></b><div id="resolveHint"></div><details id="resolveDetail" style="margin-top:5px;border:none;background:none"><summary style="padding:0;font-size:12px">查看详细原因</summary><ol id="resolveAttempts"></ol></details></div>
+  </div>
+  <div class="pane" id="pFile">
+    <input type="file" id="fileInput" accept="video/*,audio/*">
+    <p class="hint">支持 100MB 以内的视频文件。</p>
+  </div>
+  <div class="player-box" id="playerBox"></div>
+  <div id="platformGuide" style="display:none;margin-top:10px;background:#fdf3e7;border:1px solid #f0d9bd;border-radius:12px;padding:12px;font-size:13px;line-height:1.7">
+    <b>让 AI 分析这条视频：</b><br>
+    <button class="btn btn-primary" style="margin-top:8px;padding:8px 14px" onclick="serverDownload()">⚡ 自动获取并分析</button>
+    <button class="btn btn-ghost" style="margin-top:8px;padding:8px 14px" onclick="gotoUpload()">📁 保存后上传</button>
+    <button class="btn btn-ghost" style="margin-top:8px;padding:8px 14px" onclick="manualBox.open=true;manualText.focus();manualText.scrollIntoView({behavior:'smooth'})">📝 粘贴文案</button>
+  </div>
+  <details style="margin-top:10px" id="manualBox">
+    <summary>没有视频文件？手动粘贴字幕/文案</summary>
+    <div style="padding:0 12px 12px">
+      <textarea id="manualText" placeholder="把视频的字幕、口播文案或内容描述粘贴到这里…"></textarea>
+      <button class="btn btn-ghost btn-block" onclick="useManualText()">用这段文字继续</button>
+    </div>
+  </details>
+</section>
+
+<!-- 解析过程（有视频后才出现） -->
+<section class="sec" id="secExtract" style="display:none">
+  <div class="status" id="stAnalyze"><div class="spinner"></div><span></span></div>
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-head"><span id="pipeHeadTitle">正在理解这段视频</span><span><span class="pipe-time" id="pipeTime">0 秒</span><button class="pipe-cancel" id="btnCancelAnalyze" onclick="cancelAnalyze()">取消</button></span></div>
+    <div class="pipe-eta" id="pipeEta">通常需要 30 秒～2 分钟，视频越长耗时越久</div>
+    <div class="pipe-step" id="pipePrepare"><span class="dot">1</span><div><b>准备视频</b><div class="pipe-detail" id="pipePrepareText">等待视频</div><div class="pipe-bar"><span id="pipeUploadBar"></span></div></div></div>
+    <div class="pipe-step" id="pipeUpload"><span class="dot">2</span><div><b>听视频里说了什么</b><div class="pipe-detail" id="pipeUploadText">等待识别声音</div></div></div>
+    <div class="pipe-step" id="pipeThink"><span class="dot">3</span><div><b>看视频里发生了什么</b><div class="pipe-detail" id="pipeThinkText">等待理解画面</div></div></div>
+    <div class="pipe-step" id="pipeFinish"><span class="dot">4</span><div><b>整理成可读结果</b><div class="pipe-detail" id="pipeFinishText">等待整理</div></div></div>
+    <div class="frame-strip" id="frameStrip"><div class="fs-title" id="frameTitle">🖼 正在抽取关键帧…</div><div class="fs-scroll" id="frameScroll"></div></div>
+    <div class="chip-row" id="chipRow"><b>🔎 AI 认出了：</b><span id="chipWrap"></span></div>
+    <div class="live-output" id="liveOutput">
+      <div class="live-title">分析结果会在这里逐步出现</div>
+      <div class="live-grid">
+        <div class="live-pane" id="liveTranscriptPane"><b>🗣 听到的内容</b><div class="live-text" id="liveTranscript">正在识别…</div></div>
+        <div class="live-pane" id="liveVisualPane"><b>🎬 看到的画面</b><div class="live-text" id="liveVisual">等待画面分析…</div></div>
+        <div class="live-pane" id="liveSubPane" style="display:none"><b>📃 画面文字</b><div class="live-text" id="liveSub">正在识别画面文字…</div></div>
+      </div>
+    </div>
+    <button class="btn btn-green btn-block" id="btnGotoCards" style="display:none" onclick="gotoCardsStep()">查看判断卡片 →</button>
+    <details class="pipe-tech" id="pipeTech"><summary>查看技术详情</summary><div id="pipeTechText"></div></details>
+  </div>
+  <div class="cmt-box" id="cmtBox">
+    <div class="cmt-head">💬 大家在关注什么<span class="cmt-badge">AI 模拟 · 示例评论</span></div>
+    <div id="cmtItems"></div>
+    <p class="hint" style="margin-top:6px">根据视频内容模拟的评论区，用于发现观众最关心的行为点；生成卡片时会优先覆盖这些点。</p>
+  </div>
+  <button class="btn btn-ghost btn-block" id="btnRetryAnalyze" onclick="analyzeVideo()" style="display:none">↻ 重新解析</button>
+</section>
+
+<!-- 判官卡片（开始出题后才出现） -->
+<section class="sec" id="secCards" style="display:none">
+  <h2>你来当判官</h2>
+  <button class="btn btn-ghost btn-block" id="btnCards" onclick="generateCards()" disabled style="display:none">↻ 重新生成判断卡片</button>
+  <div class="status" id="stCards"><div class="spinner"></div><span></span></div>
+  <div class="detect-list" id="detectList"><div class="detect-head" id="detectHead">🔍 正在检测行为点…</div><div id="detectItems"></div></div>
+  <div id="cardArea" style="margin-top:14px;display:none">
+    <div class="progressbar" id="cardProgress"></div>
+    <div class="card" id="cardBox">
+      <span class="tag" id="cardTag">视频中的做法</span>
+      <div class="claim" id="cardClaim"></div>
+      <div class="judge-btns" id="judgeBtns">
+        <button class="btn btn-green" onclick="judge(true)">✅ 这样做对</button>
+        <button class="btn" style="background:var(--danger);color:#fff" onclick="judge(false)">❌ 这样做不对</button>
+      </div>
+      <div class="verdict" id="verdictBox">
+        <div class="head" id="verdictHead"></div>
+        <div id="verdictExp"></div>
+        <div class="src" id="verdictSrc"></div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <span class="score" id="scoreText"></span>
+      <button class="btn btn-ghost" id="btnNext" onclick="nextCard()" style="display:none">下一张 →</button>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ 全局状态 ============ */
+const S = {
+  model: "kimi-k3",
+  file: null,            // 本地/直链拿到的视频 File/Blob
+  transcript: "",        // 对话脚本
+  visual: "",            // 画面描述
+  cards: [],             // {claim, verdict:'right'|'wrong', explanation, source}
+  idx: 0, score: 0, answered: 0
+};
+const $ = id => document.getElementById(id);
+S.configReady = location.protocol==="file:" ? Promise.resolve() : fetch("/app-config")
+  .then(r=>r.ok?r.json():{}).then(c=>{
+    if(c.model) S.model=c.model;
+    if(c.commentStyles) S.commentStyles=c.commentStyles;
+    S.ocr2=!!c.ocr2;
+  }).catch(()=>{});
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
+function switchTab(el){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.remove("on"));
+  el.classList.add("on"); $(el.dataset.pane).classList.add("on");
+}
+function busy(id,msg){ const s=$(id); if(msg){s.classList.add("show"); s.querySelector("span").textContent=msg;} else s.classList.remove("show"); }
+
+/* ============ 1. 链接解析与播放 ============ */
+/* 从整段分享文字中抠出第一个 URL(抖音分享常带中文文案) */
+function extractUrl(t){
+  const m = t.match(/https?:\/\/[^\s，。、；！？"'“”<>()（）【】]+/);
+  return m ? m[0] : t.trim();
+}
+/* 各种抖音链接形态里的视频 ID */
+function douyinId(u){
+  const m = u.match(/(?:video|note|slides)\/(\d{15,})/) || u.match(/(?:modal_id|vid|item_ids)=(\d{15,})/);
+  return m ? m[1] : null;
+}
+function isDouyinUrl(u){
+  try{ return /(^|\.)(douyin\.com|iesdouyin\.com)$/i.test(new URL(u).hostname); }
+  catch(e){ return false; }
+}
+async function parseDouyin(url){
+  const box=$("playerBox"), info=$("videoInfo"), errorBox=$("resolveError");
+  busy("stResolve","正在规范化链接并解析视频…");
+  info.classList.remove("show");
+  errorBox.classList.remove("show");
+  try{
+    const r=await fetch("/douyin/parse?url="+encodeURIComponent(url));
+    const d=await r.json().catch(()=>({error:"HTTP "+r.status}));
+    if(r.status===404) throw new Error("程序版本较旧，请关闭原启动窗口后重新双击“启动.bat”");
+    if(!r.ok || !d.playUrl) throw Object.assign(new Error(d.error||"解析失败"),{attempts:d.attempts||[],hint:d.hint||""});
+    S.lastUrl=d.canonicalUrl; S.douyin=d;
+    box.style.display="block";
+    box.innerHTML=`<video src="${d.playUrl}" controls playsinline preload="metadata"></video>`;
+    $("videoTitle").textContent=d.title||"抖音视频";
+    $("videoMeta").textContent="";
+    info.classList.add("show");
+    $("platformGuide").style.display="block";
+    toast("✅ 抖音链接解析成功");
+    return true;
+  }catch(e){
+    $("resolveErrorTitle").textContent="解析失败："+e.message;
+    $("resolveAttempts").innerHTML="";
+    const attempts=(e.attempts||[]).filter(Boolean);
+    $("resolveDetail").style.display=attempts.length?"block":"none";
+    $("resolveDetail").open=false;
+    attempts.forEach(msg=>{
+      const li=document.createElement("li"); li.textContent=msg; $("resolveAttempts").appendChild(li);
+    });
+    $("resolveHint").textContent=e.hint||"请使用视频分享菜单复制出的链接，或保存视频后从本地上传。";
+    errorBox.classList.add("show");
+    toast("解析失败，详细原因已显示在输入框下方");
+    return false;
+  }finally{ busy("stResolve"); }
+}
+async function loadUrl(){
+  let url = extractUrl(urlInput.value);
+  if(!url) return toast("请先粘贴视频链接或分享文字");
+  const box = $("playerBox"); S.file=null; S.douyin=null;
+  $("videoInfo").classList.remove("show");
+  $("resolveError").classList.remove("show");
+
+  if(isDouyinUrl(url)){
+    if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用，再解析抖音链接");
+    const ok=await parseDouyin(url);
+    if(ok) return;
+    if(!douyinId(url)) return;
+  }
+
+  /* 短链 → 后端展开成完整链接 */
+  if(/^https?:\/\/(v\.douyin\.com|b23\.tv)\//.test(url)){
+    if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用，再解析链接");
+    toast("正在解析短链…");
+    try{
+      const d = await (await fetch("/resolve?url="+encodeURIComponent(url))).json();
+      if(!d.url) throw new Error(d.error||"解析失败");
+      url = d.url;
+    }catch(e){ return toast("短链解析失败("+e.message+"),请在浏览器打开视频后复制地址栏完整链接"); }
+  }
+
+  box.style.display="block";
+  $("platformGuide").style.display="none";
+  S.lastUrl = url;
+  let m;
+  if((m = url.match(/(BV[0-9A-Za-z]{10})/))){                     // B站
+    box.innerHTML = `<iframe src="https://player.bilibili.com/player.html?bvid=${m[1]}&autoplay=0&danmaku=0" allowfullscreen scrolling="no"></iframe>`;
+    $("platformGuide").style.display="block";
+  } else if((m = douyinId(url))){                                  // 抖音
+    box.innerHTML = `<iframe src="https://open.douyin.com/player/video?vid=${m}&autoplay=0" allowfullscreen scrolling="no"></iframe>`;
+    $("platformGuide").style.display="block";
+  } else if(/\.(mp4|webm|ogg|mp3|m4a|wav|mov)(\?|$)/i.test(url)){ // 直链
+    box.innerHTML = `<video src="${url}" controls playsinline></video>`;
+    tryFetchDirect(url);
+  } else {
+    box.innerHTML = `<video src="${url}" controls playsinline></video>`;
+    toast("已按视频地址尝试播放");
+    tryFetchDirect(url);
+  }
+}
+/* 直链尝试拉取为 Blob 供 AI 分析（受对方服务器 CORS 限制，失败则提示改用本地上传） */
+async function tryFetchDirect(url){
+  try{
+    const r = await fetch(url); if(!r.ok) throw 0;
+    const b = await r.blob();
+    S.file = new File([b], "video", {type: b.type || "video/mp4"});
+    resetExtractForNewFile();
+    toast("✅ 已获取视频数据，正在自动解析");
+    analyzeVideo();
+  }catch(e){
+    toast("这个链接无法直接读取内容，请把视频保存后从「本地视频」上传");
+  }
+}
+function gotoUpload(){
+  document.querySelector('[data-pane="pFile"]').click();
+  fileInput.click();
+}
+/* 服务器端 yt-dlp 下载（可选读取项目目录的 cookies.txt） */
+async function serverDownload(){
+  if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用再使用此功能");
+  if(!S.lastUrl) return toast("请先粘贴并播放一个链接");
+  toast("正在获取视频，可能需要十几秒…");
+  const box=$("playerBox");
+  try{
+    const r = await fetch("/download?url="+encodeURIComponent(S.lastUrl));
+    const ct = r.headers.get("content-type")||"";
+    if(!ct.startsWith("video/")){
+      const e = await r.json().catch(()=>({error:"HTTP "+r.status}));
+      throw new Error(e.error||"下载失败");
+    }
+    const b = await r.blob();
+    S.file = new File([b], "video.mp4", {type:"video/mp4"});
+    box.style.display="block";
+    box.innerHTML = `<video src="${URL.createObjectURL(b)}" controls playsinline></video>`;
+    $("platformGuide").style.display="none";
+    resetExtractForNewFile();
+    toast("✅ 已下载("+(b.size/1048576).toFixed(1)+"MB)，正在自动解析");
+    analyzeVideo();
+  }catch(e){ toast("✗ "+e.message); }
+}
+fileInput.addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  S.file = f;
+  $("platform

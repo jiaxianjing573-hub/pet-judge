@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计样张 · 宠物呵护小判官（动森风 v3 · 简洁无 emoji）</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+:root{
+  --ink:#725d42; --head:#794f27; --sub:#9f927d; --dis:#c4b89e;
+  --paper:rgb(247,243,223); --white:#fffdf6;
+  --teal:#19c8b9; --ok:#6fba2c; --ok-btn:#8ac68a; --err:#cd6a60;
+  --focus:#ffcc00; --taupe:#bdaea0;
+  --tr:all .25s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:Nunito,'Noto Sans SC',-apple-system,'PingFang SC',sans-serif;
+  color:var(--ink);font-weight:500;font-size:15px;line-height:1.65;letter-spacing:.01em;
+  background-color:#7DC395;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='%23ffffff' fill-opacity='0.10'%3E%3Cpath d='M34 42l18 30H16z'/%3E%3Cpath d='M168 24l14 24h-28z' transform='rotate(28 168 36)'/%3E%3Cpath d='M96 156l19 32H77z' transform='rotate(-18 96 172)'/%3E%3C/g%3E%3Cg fill='%23035c44' fill-opacity='0.06'%3E%3Cpath d='M196 136l15 25h-30z' transform='rotate(12 196 148)'/%3E%3Cpath d='M58 198l13 22H45z' transform='rotate(42 58 209)'/%3E%3Cpath d='M210 60l12 20h-24z' transform='rotate(-30 210 70)'/%3E%3C/g%3E%3C/svg%3E");
+  max-width:600px;margin:0 auto;padding:0 14px 90px;min-height:100vh;
+}
+.demo-tag{position:fixed;top:10px;right:10px;background:rgba(60,90,60,.55);color:#fff;font-size:11px;padding:4px 12px;border-radius:50px;z-index:9;font-weight:700}
+.state-label{font-size:12px;color:#eaf5ec;margin:34px 0 14px;text-align:center;letter-spacing:.25em;font-weight:800;text-shadow:0 1px 0 rgba(0,60,40,.25)}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:26px 4px 8px}
+.logo h1{font-size:24px;font-weight:900;color:#FFFBE7;letter-spacing:.03em;text-shadow:0 3px 0 rgba(0,70,45,.18)}
+.logo h1 span{color:#FFE58A}
+.logo small{display:block;font-size:12px;color:#DDF2E2;font-weight:700;margin-top:-2px}
+.hud{display:flex;gap:8px;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:800;box-shadow:0 3px 8px rgba(0,60,40,.14)}
+.pill.score{background:#b3a046;color:#fff;box-shadow:inset 0 -4px 0 rgba(91,78,30,.18),0 0 0 3px #fffbe7,0 4px 10px rgba(91,78,30,.2)}
+.pill.score i{font-style:normal;font-size:11px;font-weight:700;opacity:.85}
+.pill.streak{background:var(--white);color:#a85565;border:1.5px solid #f4b6c1}
+
+.panel{background:var(--white);border-radius:22px;padding:20px;margin-bottom:6px;box-shadow:0 6px 20px rgba(30,80,55,.13)}
+.sub{background:var(--paper);border-radius:16px;padding:14px 16px}
+.dots{background:radial-gradient(circle,rgba(212,160,48,.14) 1.5px,transparent 1.5px) 0 0/28px 28px,#fdf7e4;border:1.5px solid #ecd88a;border-radius:16px;padding:16px 18px}
+
+.ribbon{position:relative;display:flex;justify-content:center;margin:2px auto 16px;width:fit-content;font-size:18px;filter:drop-shadow(0 3px 4px rgba(0,60,40,.14))}
+.ribbon .tail{position:absolute;top:.6em;width:1.5em;height:1.8em;background:var(--rb)}
+.ribbon .tail.l{left:-.85em;clip-path:polygon(100% 0,100% 100%,0 100%,32% 50%,0 0)}
+.ribbon .tail.r{right:-.85em;clip-path:polygon(0 0,100% 0,68% 50%,100% 100%,0 100%)}
+.ribbon .fold{position:absolute;bottom:-.28em;width:0;height:0;border-style:solid}
+.ribbon .fold.l{left:-.35em;border-width:0 .8em .38em 0;border-color:transparent var(--rk) transparent transparent}
+.ribbon .fold.r{right:-.35em;border-width:0 0 .38em .8em;border-color:transparent transparent transparent var(--rk)}
+.ribbon .front{position:relative;z-index:2;height:2.2em;padding:.1em 2.1em 0;border-radius:.22em;background:var(--rf);color:var(--rt);
+  display:flex;align-items:center;font-weight:900;letter-spacing:.05em;box-shadow:inset 0 -.09em 0 rgba(0,0,0,.07)}
+.rib-yellow{--rf:#f0d95c;--rb:#d4a030;--rk:#8a6010;--rt:#725d42}
+.rib-purple{--rf:#b77dee;--rb:#9050d0;--rk:#5a1a9a;--rt:#fff}
+.rib-green{--rf:#8ac68a;--rb:#5f9e5f;--rk:#2e5c2e;--rt:#fff}
+
+.tabs{display:flex;gap:10px;margin-bottom:14px}
+.tab{flex:1;height:42px;display:flex;align-items:center;justify-content:center;border-radius:50px;font-size:14px;font-weight:700;color:var(--sub);background:var(--white);border:2px solid #eee6d2;box-shadow:0 2px 4px rgba(61,52,40,.06);transition:var(--tr)}
+.tab.on{background:var(--paper);color:var(--head);border-color:#e2d7bd;box-shadow:0 4px 0 0 var(--taupe)}
+.field{width:100%;height:48px;border:2.5px solid var(--dis);border-radius:50px;padding:0 22px;font-size:15px;font-weight:500;background:#fff;color:var(--ink);outline:none;font-family:inherit;transition:var(--tr)}
+.field::placeholder{color:var(--dis);font-weight:400}
+.field:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(255,204,0,.15)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:47px;border:2px solid #f0ead8;border-radius:50px;font-size:15.5px;font-weight:700;letter-spacing:.06em;cursor:pointer;margin-top:14px;color:var(--head);background:var(--white);box-shadow:0 5px 0 0 var(--taupe);transition:var(--tr);font-family:inherit}
+.btn:hover{box-shadow:0 6px 0 0 var(--taupe);transform:translateY(-1px)}
+.btn:active{box-shadow:0 1px 0 0 var(--taupe);transform:translateY(2px)}
+.btn.yellow{background:var(--focus);border-color:#e0b800;color:var(--ink)}
+
+.pipe-head{display:flex;justify-content:space-between;align-items:center}
+.pipe-head b{font-size:15.5px;font-weight:800;color:var(--head)}
+.pipe-head span{font-size:12px;color:var(--sub);font-weight:700}
+.eta{font-size:11.5px;color:var(--sub);margin:1px 0 10px}
+.progress{height:20px;border-radius:999px;background:#f8f8f0;border:2px solid #e8dcc8;box-shadow:inset 0 2px 4px rgba(114,93,66,.08);overflow:hidden;margin-bottom:12px}
+.progress i{display:block;height:100%;width:72%;border-radius:999px;background:#0ec4b6;
+  background-image:repeating-linear-gradient(-45deg,#0ec4b6 0,#0ec4b6 10px,#01b0a7 10px,#01b0a7 20px);
+  background-size:28.28px 28.28px;animation:stripe 1s linear infinite}
+@keyframes stripe{to{background-position:-28.28px 0}}
+.step{display:flex;gap:11px;padding:6px 0;align-items:flex-start}
+.step .dot{width:24px;height:24px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:2px}
+.step.done .dot{background:var(--ok-btn);color:#fff}
+.step.done .dot::before{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.step.active .dot{background:var(--focus);color:var(--head);animation:pulse 1.1s infinite}
+.step.wait .dot{background:#f3efe2;color:var(--dis)}
+@keyframes pulse{50%{transform:scale(.85)}}
+.step b{display:block;font-size:14px;font-weight:700;color:var(--head)}
+.step small{font-size:12px;color:var(--sub)}
+.step.done b{color:var(--sub);font-weight:600;font-size:13px}
+.step.done small{display:none}
+.step.active b{font-size:15px}
+.step.active small{color:var(--ink);font-weight:600}
+.detail-block{border-top:1.5px dashed #e8dcc8;margin-top:12px;padding-top:12px}
+.caption{font-size:11px;color:var(--dis);font-weight:800;letter-spacing:.12em;margin-bottom:6px}
+.frames{display:flex;gap:6px;overflow:hidden;margin:8px 0 2px}
+.frames i{flex:none;width:60px;height:40px;border-radius:12px}
+.frames i:nth-child(odd){background:#eee9d6}
+.frames i:nth-child(even){background:#e4ddc6}
+.tagrow{margin-top:10px;line-height:2.3}
+.tagrow em{font-style:normal;font-size:12px;color:var(--sub);font-weight:700;margin-right:8px}
+.tag{display:inline-flex;align-items:center;height:28px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:700;margin-right:6px;background:#e2f3ec;border:1.5px solid #a8dcc4;color:#1e6b52}
+.live{margin-top:10px}
+.live b{font-size:12px;color:#11a89b;display:block;margin-bottom:4px;font-weight:800;letter-spacing:.06em}
+.live p{font-size:12.5px;max-height:62px;overflow:hidden}
+.typew::after{content:"";display:inline-block;width:2px;height:12px;background:var(--teal);margin-left:2px;vertical-align:-1px;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+
+.sec-title{font-size:15px;font-weight:800;color:var(--head);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mock-badge{display:inline-flex;height:21px;align-items:center;padding:0 9px;border-radius:999px;background:var(--paper);color:var(--sub);font-size:10.5px;font-weight:700}
+.cmt-item{display:flex;gap:10px;padding:11px 2px;position:relative;align-items:flex-start}
+.cmt-item + .cmt-item::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:repeating-linear-gradient(90deg,rgba(114,93,66,.16) 0 6px,transparent 6px 12px)}
+.ava{width:34px;height:34px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.a1{background:#e5a0b0}.a2{background:#93c398}.a3{background:#9fb3e8}
+.cmt-item .who{font-size:12px;color:var(--sub);font-weight:800}
+.cmt-item .txt{font-size:13.5px}
+.cmt-item .like{margin-left:auto;font-size:11px;color:var(--sub);flex:none;font-weight:700}
+
+.claim-tag{display:inline-flex;height:25px;align-items:center;padding:0 12px;border-radius:999px;background:#fff;border:1.5px solid #ecd88a;color:#8a6010;font-size:12px;font-weight:800;margin-bottom:10px}
+.claim{font-size:18px;font-weight:800;line-height:1.6;color:var(--head)}
+.judge{display:flex;gap:12px;margin-top:16px}
+.jbtn{flex:1;height:48px;border:none;border-radius:50px;font-size:15px;font-weight:800;cursor:pointer;color:#fff;transition:var(--tr);font-family:inherit;letter-spacing:.06em}
+.jbtn.yes{background:var(--ok-btn);box-shadow:0 5px 0 0 #5f9e5f}
+.jbtn.yes:active{box-shadow:0 1px 0 0 #5f9e5f;transform:translateY(2px)}
+.jbtn.no{background:var(--err);box-shadow:0 5px 0 0 #a54a42}
+.jbtn.no:active{box-shadow:0 1px 0 0 #a54a42;transform:translateY(2px)}
+
+.notify{background:var(--paper);border:2px solid var(--ok);border-radius:18px;padding:14px 16px;margin-top:16px;display:flex;gap:12px;align-items:flex-start}
+.notify .iconwrap{width:30px;height:30px;border-radius:50%;background:#e3f0dd;flex:none;display:flex;align-items:center;justify-content:center}
+.notify .iconwrap::before{content:"";width:10px;height:6px;border-left:2.5px solid var(--ok);border-bottom:2.5px solid var(--ok);transform:rotate(-45deg) translate(1px,-1px)}
+.notify b{display:block;font-size:16px;color:var(--head);font-weight:800;margin-bottom:4px}
+.notify p{font-size:13px;color:var(--ink)}
+.notify .src{font-size:11px;color:var(--dis);margin-top:9px;font-weight:700;border-top:1.5px dashed #dbe8d2;padding-top:8px}
+</style>
+</head>
+<body>
+<div class="demo-tag">动森风 v3 · 简洁版样张</div>
+
+<header>
+  <div class="logo">
+    <h1>宠物呵护<span>小判官</span></h1>
+    <small>看视频 · 学养宠 · 当判官</small>
+  </div>
+  <div class="hud">
+    <span class="pill score"><i>得分</i>1,300</span>
+    <span class="pill streak">连对 x2</span>
+  </div>
+</header>
+
+<div class="state-label">— 状态 1 · 首屏入口 —</div>
+<div class="ribbon rib-yellow"><i class="tail l"></i><i class="tail r"></i><i class="fold l"></i><i class="fold r"></i><span class="front">先挑一个视频</span></div>
+<div class="panel">
+  <div class="tabs">
+    <div class="tab on">链接</div>
+    <div class="tab">本地视频</div>
+  </div>
+  <input class="field" placeholder="粘贴 B站 / 抖音链接，整段分享文字也行…">
+  <button class="btn">解析并播放</button>
+</div>
+
+<div class="state-label">— 状态 2 · 解析中 —</div>
+<div class="panel">
+  <div class="pipe-head"><b>正在理解这段视频</b><span>46 秒</span></div>
+  <div class="eta">通常需要 30 秒～2 分钟，可随时取消</div>
+  <div class="progress"><i></i></div>
+  <div class="step done"><span class="dot"></span><div><b>准备视频</b><small>视频准备好了</small></div></div>
+  <div class="step done"><span class="dot"></span><div><b>听视频里说了什么</b><small>对话与声音识别完成</small></div></div>
+  <div class="step active"><span class="dot">3</span><div><b>看视频里发生了什么</b><small>正在还原动作、场景和画面文字…</small></div></div>
+  <div class="step wait"><span class="dot">4</span><div><b>整理成可读结果</b><small>等待整理</small></div></div>
+  <div class="detail-block">
+    <div class="caption">过程详情</div>
+    <div class="frames"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="tagrow"><em>认出了</em><span class="tag">田园犬</span><span class="tag">石板路</span><span class="tag">SUV</span><span class="tag">尾巴</span><span class="tag">车位</span></div>
+    <div class="sub live"><b>看到的画面</b><p class="typew">一只棕黄色小型犬站在车头前方的石板路上，身体侧向右边，头部转向画面右侧，双眼微眯、眼神下垂，呈现出一脸嫌弃、不耐烦的神情</p></div>
+  </div>
+</div>
+
+<div class="state-label">— 状态 3 · 大家在关注什么 —</div>
+<div class="panel">
+  <div class="sec-title">大家在关注什么<span class="mock-badge">AI 模拟</span></div>
+  <div class="cmt-item">
+    <div class="ava a1">猫</div>
+    <div><div class="who">@猫奴本奴</div><div class="txt">狗狗一直站在车前面真的没事吗？我家也这样，看完慌了</div></div>
+    <div class="like">3.2k 赞</div>
+  </div>
+  <div class="cmt-item">
+    <div class="ava a2">金</div>
+    <div><div class="who">@养了8年金毛的</div><div class="txt">过来人说一句，不牵绳停车场遛狗真不行</div></div>
+    <div class="like">892 赞</div>
+  </div>
+  <div class="cmt-item">
+    <div class="ava a3">理</div>
+    <div><div class="who">@狗都不理我</div><div class="txt">我笑麻了，这表情是真的懂嫌弃</div></div>
+    <div class="like">456 赞</div>
+  </div>
+</div>
+
+<div class="state-label">— 状态 4 · 判官出题 —</div>
+<div class="ribbon rib-purple" style="font-size:16px"><i class="tail l"></i><i class="tail r"></i><i class="fold l"></i><i class="fold r"></i><span class="front">第 2 / 5 题</span></div>
+<div class="panel">
+  <div class="dots">
+    <span class="claim-tag">视频中的做法</span>
+    <div class="claim">主人看狗狗可怜巴巴的，直接把桌上的葡萄喂了</div>
+  </div>
+  <div class="judge">
+    <button class="jbtn yes">这样做对</button>
+    <button class="jbtn no">这样做不对</button>
+  </div>
+</div>
+
+<div class="state-label">— 状态 5 · 答案揭晓 —</div>
+<div class="ribbon rib-green" style="font-size:16px"><i class="tail l"></i><i class="tail r"></i><i class="fold l"></i><i class="fold r"></i><span class="front">判断正确 · 连对 3 题</span></div>
+<div class="panel">
+  <div class="dots">
+    <span class="claim-tag">视频中的做法</span>
+    <div class="claim">主人看狗狗可怜巴巴的，直接把桌上的葡萄喂了</div>
+  </div>
+  <div class="notify">
+    <div class="iconwrap"></div>
+    <div>
+      <b>这样做不科学</b>
+      <p>葡萄和葡萄干对犬类有明确肾毒性，即使少量也可能引发急性肾衰竭，且中毒剂量因个体差异极大，无安全下限。正确做法是绝不喂食葡萄，误食后立即就医。</p>
+      <div class="src">依据：ASPCA 动物中毒控制中心 · 默克兽医手册</div>
+    </div>
+  </div>
+  <button class="btn yellow">下一题</button>
+</div>
+
+</body>
+</html>

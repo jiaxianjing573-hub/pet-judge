@@ -1,0 +1,19 @@
+.env
+cookies.txt
+node_modules/
+*.mp4
+*.webm
+*.part
+
+# Local configuration and generated files
+.env.*
+!.env.example
+dist/
+dist-next/
+.wrangler/
+.tmp/
+.agents/
+*.log
+*.stdout*
+*.stderr*
+

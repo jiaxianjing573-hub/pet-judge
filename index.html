@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>宠物呵护小判官</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#2b2b28; --sub:#7a776e;
+    --accent:#e8853b; --accent2:#4a9d6e; --danger:#d05a4e;
+    --line:#e6e2d8; --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);max-width:560px;margin:0 auto;padding:0 14px 60px;font-size:15px;line-height:1.6}
+  header{display:flex;align-items:center;padding:16px 2px 12px}
+  header h1{font-size:20px;font-weight:700}
+  header h1 span{color:var(--accent)}
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+  .sec h2{font-size:14px;color:var(--sub);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  input[type=text],input[type=password],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;background:#fbfaf7;color:var(--ink);outline:none}
+  input:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:80px}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .btn{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+  .btn:active{opacity:.7}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-green{background:var(--accent2);color:#fff}
+  .btn-ghost{background:#f0ede5;color:var(--ink)}
+  .btn-block{width:100%;margin-top:10px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .hint{font-size:12px;color:var(--sub);margin-top:8px}
+  .player-box{margin-top:12px;border-radius:12px;overflow:hidden;background:#000;display:none}
+  .player-box iframe,.player-box video{width:100%;aspect-ratio:16/9;display:block;border:none}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tab{flex:1;text-align:center;padding:8px;border-radius:10px;background:#f0ede5;font-size:13px;cursor:pointer;color:var(--sub)}
+  .tab.on{background:var(--ink);color:#fff}
+  .pane{display:none}.pane.on{display:block}
+  details{border:1px solid var(--line);border-radius:10px;margin-top:8px;background:#fbfaf7}
+  details summary{padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--sub)}
+  details .txt{padding:0 12px 10px;font-size:13px;white-space:pre-wrap;max-height:220px;overflow:auto}
+  .status{font-size:13px;margin-top:10px;color:var(--sub);display:none}
+  .status.show{display:flex;align-items:center;gap:8px}
+  .video-info{display:none;margin-top:10px;padding:10px 12px;border:1px solid #c9e4d4;border-radius:10px;background:#eff8f2;font-size:13px}
+  .video-info.show{display:block}
+  .video-info .meta{color:var(--sub);font-size:12px;margin-top:3px}
+  .resolve-error{display:none;margin-top:10px;padding:11px 12px;border:1px solid #efc7c1;border-radius:10px;background:#fff2f0;font-size:12px;color:#7d3d36}
+  .resolve-error.show{display:block}
+  .resolve-error b{display:block;font-size:13px;margin-bottom:4px}
+  .resolve-error ol{padding-left:20px;margin:5px 0}
+  .pipeline{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .pipeline.show{display:block}
+  .pipe-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:9px}
+  .pipe-time{font-size:12px;font-weight:400;color:var(--sub)}
+  .pipe-eta{font-size:11px;color:var(--sub);margin:-5px 0 8px}
+  .pipe-cancel{border:none;background:none;color:var(--sub);font-size:12px;cursor:pointer;text-decoration:underline;padding:0;margin-left:10px}
+  .pipe-step{display:grid;grid-template-columns:22px 1fr;gap:7px;padding:6px 0;color:var(--sub);font-size:12px}
+  .pipe-step .dot{width:18px;height:18px;border-radius:50%;background:#e5e1d8;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:1px}
+  .pipe-step.active{color:var(--ink)}
+  .pipe-step.active .dot{background:var(--accent);color:#fff;animation:pulse 1.2s infinite}
+  .pipe-step.done .dot{background:var(--accent2);color:#fff}
+  .pipe-step.error{color:var(--danger)}
+  .pipe-step.error .dot{background:var(--danger);color:#fff}
+  .pipe-step b{display:block;font-size:13px;color:inherit}
+  .pipe-detail{line-height:1.5;word-break:break-word}
+  .pipe-bar{height:5px;border-radius:4px;background:#e7e2d8;overflow:hidden;margin-top:5px}
+  .pipe-bar span{display:block;width:0;height:100%;background:var(--accent2);transition:width .2s}
+  .frame-strip{display:none;margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
+  .frame-strip.show{display:block}
+  .fs-title{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:6px}
+  .fs-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+  .fs-scroll img{height:54px;border-radius:6px;border:1px solid var(--line);flex:none;animation:fadein .45s}
+  .chip-row{display:none;margin-top:9px;font-size:12px;color:var(--sub);line-height:2}
+  .chip-row.show{display:block}
+  .chip{display:inline-block;background:#fdeedd;color:var(--accent);border-radius:20px;padding:2px 10px;margin-right:5px;font-size:12px;animation:pop .35s}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+  .detect-list{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .detect-list.show{display:block}
+  .detect-head{font-size:13px;font-weight:700;margin-bottom:4px}
+  .detect-item{font-size:13px;padding:6px 0;border-top:1px dashed var(--line);display:flex;gap:7px;align-items:flex-start;animation:fadein .4s}
+  .detect-item .st{flex:none;font-size:11px;margin-top:2px}
+  .cmt-box{display:none;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+  .cmt-box.show{display:block}
+  .cmt-head{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .cmt-badge{font-size:10px;color:#fff;background:#b8b2a4;border-radius:5px;padding:1px 6px;font-weight:400}
+  .cmt-item{border-top:1px dashed var(--line);padding:7px 0;font-size:13px;animation:fadein .4s}
+  .cmt-item:first-child{border-top:none}
+  .cmt-user{color:var(--sub);font-size:12px}
+  .cmt-likes{color:var(--sub);font-size:11px;float:right}
+  .live-output{display:none;margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}
+  .live-output.show{display:block}
+  .live-title{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:5px}
+  .live-grid{display:grid;grid-template-columns:1fr;gap:6px}
+  .live-pane{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px}
+  .live-pane b{display:block;font-size:11px;color:var(--accent);margin-bottom:3px}
+  .live-text{font-size:12px;white-space:pre-wrap;max-height:130px;overflow:auto;color:var(--ink);word-break:break-word}
+  .pipe-tech{display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:7px;font-size:11px;color:var(--sub)}
+  .pipe-tech.show{display:block}
+  .pipe-tech summary{cursor:pointer}
+  .pipe-tech div{margin-top:5px;word-break:break-word;white-space:pre-wrap}
+  @keyframes pulse{50%{opacity:.55;transform:scale(.9)}}
+  .spinner{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .progressbar{font-size:12px;color:var(--sub);text-align:center;margin-bottom:8px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fffdf8;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .card .tag{font-size:11px;color:var(--accent);background:#fdeedd;border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:8px}
+  .card .claim{font-size:16px;font-weight:600;line-height:1.5}
+  .judge-btns{display:flex;gap:10px;margin-top:14px}
+  .judge-btns .btn{flex:1;padding:12px}
+  .verdict{margin-top:14px;border-radius:12px;padding:12px;display:none;font-size:14px}
+  .verdict.right{background:#e9f5ee;border:1px solid #bfe0cc}
+  .verdict.wrong{background:#fbeae8;border:1px solid #f0c8c3}
+  .verdict .head{font-weight:700;margin-bottom:6px}
+  .verdict .src{font-size:12px;color:var(--sub);margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .score{font-size:13px;color:var(--sub)}
+  .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(40,40,36,.92);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99;max-width:85vw}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐾 宠物呵护<span>小判官</span></h1>
+</header>
+
+<!-- 视频入口 -->
+<section class="sec">
+  <div class="tabs">
+    <div class="tab on" data-pane="pUrl" onclick="switchTab(this)">网址链接</div>
+    <div class="tab" data-pane="pFile" onclick="switchTab(this)">本地视频</div>
+  </div>
+  <div class="pane on" id="pUrl">
+    <input type="text" id="urlInput" placeholder="粘贴 B站 / 抖音链接，整段分享文字也行…">
+    <div class="row">
+      <button class="btn btn-primary" id="btnLoadUrl" style="flex:1" onclick="loadUrl()">🔍 解析并播放</button>
+    </div>
+    <div class="status" id="stResolve"><div class="spinner"></div><span></span></div>
+    <div class="video-info" id="videoInfo"><b id="videoTitle"></b><div class="meta" id="videoMeta"></div></div>
+    <div class="resolve-error" id="resolveError"><b id="resolveErrorTitle"></b><div id="resolveHint"></div><details id="resolveDetail" style="margin-top:5px;border:none;background:none"><summary style="padding:0;font-size:12px">查看详细原因</summary><ol id="resolveAttempts"></ol></details></div>
+  </div>
+  <div class="pane" id="pFile">
+    <input type="file" id="fileInput" accept="video/*,audio/*">
+    <p class="hint">支持 100MB 以内的视频文件。</p>
+  </div>
+  <div class="player-box" id="playerBox"></div>
+  <div id="platformGuide" style="display:none;margin-top:10px;background:#fdf3e7;border:1px solid #f0d9bd;border-radius:12px;padding:12px;font-size:13px;line-height:1.7">
+    <b>让 AI 分析这条视频：</b><br>
+    <button class="btn btn-primary" style="margin-top:8px;padding:8px 14px" onclick="serverDownload()">⚡ 自动获取并分析</button>
+    <button class="btn btn-ghost" style="margin-top:8px;padding:8px 14px" onclick="gotoUpload()">📁 保存后上传</button>
+    <button class="btn btn-ghost" style="margin-top:8px;padding:8px 14px" onclick="manualBox.open=true;manualText.focus();manualText.scrollIntoView({behavior:'smooth'})">📝 粘贴文案</button>
+  </div>
+  <details style="margin-top:10px" id="manualBox">
+    <summary>没有视频文件？手动粘贴字幕/文案</summary>
+    <div style="padding:0 12px 12px">
+      <textarea id="manualText" placeholder="把视频的字幕、口播文案或内容描述粘贴到这里…"></textarea>
+      <button class="btn btn-ghost btn-block" onclick="useManualText()">用这段文字继续</button>
+    </div>
+  </details>
+</section>
+
+<!-- 解析过程（有视频后才出现） -->
+<section class="sec" id="secExtract" style="display:none">
+  <div class="status" id="stAnalyze"><div class="spinner"></div><span></span></div>
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-head"><span id="pipeHeadTitle">正在理解这段视频</span><span><span class="pipe-time" id="pipeTime">0 秒</span><button class="pipe-cancel" id="btnCancelAnalyze" onclick="cancelAnalyze()">取消</button></span></div>
+    <div class="pipe-eta" id="pipeEta">通常需要 30 秒～2 分钟，视频越长耗时越久</div>
+    <div class="pipe-step" id="pipePrepare"><span class="dot">1</span><div><b>准备视频</b><div class="pipe-detail" id="pipePrepareText">等待视频</div><div class="pipe-bar"><span id="pipeUploadBar"></span></div></div></div>
+    <div class="pipe-step" id="pipeUpload"><span class="dot">2</span><div><b>听视频里说了什么</b><div class="pipe-detail" id="pipeUploadText">等待识别声音</div></div></div>
+    <div class="pipe-step" id="pipeThink"><span class="dot">3</span><div><b>看视频里发生了什么</b><div class="pipe-detail" id="pipeThinkText">等待理解画面</div></div></div>
+    <div class="pipe-step" id="pipeFinish"><span class="dot">4</span><div><b>整理成可读结果</b><div class="pipe-detail" id="pipeFinishText">等待整理</div></div></div>
+    <div class="frame-strip" id="frameStrip"><div class="fs-title" id="frameTitle">🖼 正在抽取关键帧…</div><div class="fs-scroll" id="frameScroll"></div></div>
+    <div class="chip-row" id="chipRow"><b>🔎 AI 认出了：</b><span id="chipWrap"></span></div>
+    <div class="live-output" id="liveOutput">
+      <div class="live-title">分析结果会在这里逐步出现</div>
+      <div class="live-grid">
+        <div class="live-pane" id="liveTranscriptPane"><b>🗣 听到的内容</b><div class="live-text" id="liveTranscript">正在识别…</div></div>
+        <div class="live-pane" id="liveVisualPane"><b>🎬 看到的画面</b><div class="live-text" id="liveVisual">等待画面分析…</div></div>
+        <div class="live-pane" id="liveSubPane" style="display:none"><b>📃 画面文字</b><div class="live-text" id="liveSub">正在识别画面文字…</div></div>
+      </div>
+    </div>
+    <button class="btn btn-green btn-block" id="btnGotoCards" style="display:none" onclick="gotoCardsStep()">查看判断卡片 →</button>
+    <details class="pipe-tech" id="pipeTech"><summary>查看技术详情</summary><div id="pipeTechText"></div></details>
+  </div>
+  <div class="cmt-box" id="cmtBox">
+    <div class="cmt-head">💬 大家在关注什么<span class="cmt-badge">AI 模拟 · 示例评论</span></div>
+    <div id="cmtItems"></div>
+    <p class="hint" style="margin-top:6px">根据视频内容模拟的评论区，用于发现观众最关心的行为点；生成卡片时会优先覆盖这些点。</p>
+  </div>
+  <button class="btn btn-ghost btn-block" id="btnRetryAnalyze" onclick="analyzeVideo()" style="display:none">↻ 重新解析</button>
+</section>
+
+<!-- 判官卡片（开始出题后才出现） -->
+<section class="sec" id="secCards" style="display:none">
+  <h2>你来当判官</h2>
+  <button class="btn btn-ghost btn-block" id="btnCards" onclick="generateCards()" disabled style="display:none">↻ 重新生成判断卡片</button>
+  <div class="status" id="stCards"><div class="spinner"></div><span></span></div>
+  <div class="detect-list" id="detectList"><div class="detect-head" id="detectHead">🔍 正在检测行为点…</div><div id="detectItems"></div></div>
+  <div id="cardArea" style="margin-top:14px;display:none">
+    <div class="progressbar" id="cardProgress"></div>
+    <div class="card" id="cardBox">
+      <span class="tag" id="cardTag">视频中的做法</span>
+      <div class="claim" id="cardClaim"></div>
+      <div class="judge-btns" id="judgeBtns">
+        <button class="btn btn-green" onclick="judge(true)">✅ 这样做对</button>
+        <button class="btn" style="background:var(--danger);color:#fff" onclick="judge(false)">❌ 这样做不对</button>
+      </div>
+      <div class="verdict" id="verdictBox">
+        <div class="head" id="verdictHead"></div>
+        <div id="verdictExp"></div>
+        <div class="src" id="verdictSrc"></div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <span class="score" id="scoreText"></span>
+      <button class="btn btn-ghost" id="btnNext" onclick="nextCard()" style="display:none">下一张 →</button>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ 全局状态 ============ */
+const S = {
+  model: "kimi-k3",
+  file: null,            // 本地/直链拿到的视频 File/Blob
+  transcript: "",        // 对话脚本
+  visual: "",            // 画面描述
+  cards: [],             // {claim, verdict:'right'|'wrong', explanation, source}
+  idx: 0, score: 0, answered: 0
+};
+const $ = id => document.getElementById(id);
+S.configReady = location.protocol==="file:" ? Promise.resolve() : fetch("/app-config")
+  .then(r=>r.ok?r.json():{}).then(c=>{
+    if(c.model) S.model=c.model;
+    if(c.commentStyles) S.commentStyles=c.commentStyles;
+    S.ocr2=!!c.ocr2;
+  }).catch(()=>{});
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2600); }
+function switchTab(el){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.remove("on"));
+  el.classList.add("on"); $(el.dataset.pane).classList.add("on");
+}
+function busy(id,msg){ const s=$(id); if(msg){s.classList.add("show"); s.querySelector("span").textContent=msg;} else s.classList.remove("show"); }
+
+/* ============ 1. 链接解析与播放 ============ */
+/* 从整段分享文字中抠出第一个 URL(抖音分享常带中文文案) */
+function extractUrl(t){
+  const m = t.match(/https?:\/\/[^\s，。、；！？"'“”<>()（）【】]+/);
+  return m ? m[0] : t.trim();
+}
+/* 各种抖音链接形态里的视频 ID */
+function douyinId(u){
+  const m = u.match(/(?:video|note|slides)\/(\d{15,})/) || u.match(/(?:modal_id|vid|item_ids)=(\d{15,})/);
+  return m ? m[1] : null;
+}
+function isDouyinUrl(u){
+  try{ return /(^|\.)(douyin\.com|iesdouyin\.com)$/i.test(new URL(u).hostname); }
+  catch(e){ return false; }
+}
+async function parseDouyin(url){
+  const box=$("playerBox"), info=$("videoInfo"), errorBox=$("resolveError");
+  busy("stResolve","正在规范化链接并解析视频…");
+  info.classList.remove("show");
+  errorBox.classList.remove("show");
+  try{
+    const r=await fetch("/douyin/parse?url="+encodeURIComponent(url));
+    const d=await r.json().catch(()=>({error:"HTTP "+r.status}));
+    if(r.status===404) throw new Error("程序版本较旧，请关闭原启动窗口后重新双击“启动.bat”");
+    if(!r.ok || !d.playUrl) throw Object.assign(new Error(d.error||"解析失败"),{attempts:d.attempts||[],hint:d.hint||""});
+    S.lastUrl=d.canonicalUrl; S.douyin=d;
+    box.style.display="block";
+    box.innerHTML=`<video src="${d.playUrl}" controls playsinline preload="metadata"></video>`;
+    $("videoTitle").textContent=d.title||"抖音视频";
+    $("videoMeta").textContent="";
+    info.classList.add("show");
+    $("platformGuide").style.display="block";
+    toast("✅ 抖音链接解析成功");
+    return true;
+  }catch(e){
+    $("resolveErrorTitle").textContent="解析失败："+e.message;
+    $("resolveAttempts").innerHTML="";
+    const attempts=(e.attempts||[]).filter(Boolean);
+    $("resolveDetail").style.display=attempts.length?"block":"none";
+    $("resolveDetail").open=false;
+    attempts.forEach(msg=>{
+      const li=document.createElement("li"); li.textContent=msg; $("resolveAttempts").appendChild(li);
+    });
+    $("resolveHint").textContent=e.hint||"请使用视频分享菜单复制出的链接，或保存视频后从本地上传。";
+    errorBox.classList.add("show");
+    toast("解析失败，详细原因已显示在输入框下方");
+    return false;
+  }finally{ busy("stResolve"); }
+}
+async function loadUrl(){
+  let url = extractUrl(urlInput.value);
+  if(!url) return toast("请先粘贴视频链接或分享文字");
+  const box = $("playerBox"); S.file=null; S.douyin=null;
+  $("videoInfo").classList.remove("show");
+  $("resolveError").classList.remove("show");
+
+  if(isDouyinUrl(url)){
+    if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用，再解析抖音链接");
+    const ok=await parseDouyin(url);
+    if(ok) return;
+    if(!douyinId(url)) return;
+  }
+
+  /* 短链 → 后端展开成完整链接 */
+  if(/^https?:\/\/(v\.douyin\.com|b23\.tv)\//.test(url)){
+    if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用，再解析链接");
+    toast("正在解析短链…");
+    try{
+      const d = await (await fetch("/resolve?url="+encodeURIComponent(url))).json();
+      if(!d.url) throw new Error(d.error||"解析失败");
+      url = d.url;
+    }catch(e){ return toast("短链解析失败("+e.message+"),请在浏览器打开视频后复制地址栏完整链接"); }
+  }
+
+  box.style.display="block";
+  $("platformGuide").style.display="none";
+  S.lastUrl = url;
+  let m;
+  if((m = url.match(/(BV[0-9A-Za-z]{10})/))){                     // B站
+    box.innerHTML = `<iframe src="https://player.bilibili.com/player.html?bvid=${m[1]}&autoplay=0&danmaku=0" allowfullscreen scrolling="no"></iframe>`;
+    $("platformGuide").style.display="block";
+  } else if((m = douyinId(url))){                                  // 抖音
+    box.innerHTML = `<iframe src="https://open.douyin.com/player/video?vid=${m}&autoplay=0" allowfullscreen scrolling="no"></iframe>`;
+    $("platformGuide").style.display="block";
+  } else if(/\.(mp4|webm|ogg|mp3|m4a|wav|mov)(\?|$)/i.test(url)){ // 直链
+    box.innerHTML = `<video src="${url}" controls playsinline></video>`;
+    tryFetchDirect(url);
+  } else {
+    box.innerHTML = `<video src="${url}" controls playsinline></video>`;
+    toast("已按视频地址尝试播放");
+    tryFetchDirect(url);
+  }
+}
+/* 直链尝试拉取为 Blob 供 AI 分析（受对方服务器 CORS 限制，失败则提示改用本地上传） */
+async function tryFetchDirect(url){
+  try{
+    const r = await fetch(url); if(!r.ok) throw 0;
+    const b = await r.blob();
+    S.file = new File([b], "video", {type: b.type || "video/mp4"});
+    resetExtractForNewFile();
+    toast("✅ 已获取视频数据，正在自动解析");
+    analyzeVideo();
+  }catch(e){
+    toast("这个链接无法直接读取内容，请把视频保存后从「本地视频」上传");
+  }
+}
+function gotoUpload(){
+  document.querySelector('[data-pane="pFile"]').click();
+  fileInput.click();
+}
+/* 服务器端 yt-dlp 下载（可选读取项目目录的 cookies.txt） */
+async function serverDownload(){
+  if(location.protocol==="file:") return toast("请先双击「启动.bat」打开本应用再使用此功能");
+  if(!S.lastUrl) return toast("请先粘贴并播放一个链接");
+  toast("正在获取视频，可能需要十几秒…");
+  const box=$("playerBox");
+  try{
+    const r = await fetch("/download?url="+encodeURIComponent(S.lastUrl));
+    const ct = r.headers.get("content-type")||"";
+    if(!ct.startsWith("video/")){
+      const e = await r.json().catch(()=>({error:"HTTP "+r.status}));
+      throw new Error(e.error||"下载失败");
+    }
+    const b = await r.blob();
+    S.file = new File([b], "video.mp4", {type:"video/mp4"});
+    box.style.display="block";
+    box.innerHTML = `<video src="${URL.createObjectURL(b)}" controls playsinline></video>`;
+    $("platformGuide").style.display="none";
+    resetExtractForNewFile();
+    toast("✅ 已下载("+(b.size/1048576).toFixed(1)+"MB)，正在自动解析");
+    analyzeVideo();
+  }catch(e){ toast("✗ "+e.message); }
+}
+fileInput.addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  S.file = f;
+  $("platformGuide").style.display="none";
+  const box=$("playerBox"); box.style.display="block";
+  box.innerHTML = `<video src="${URL.createObjectURL(f)}" controls playsinline></video>`;
+  resetExtractForNewFile();
+  toast("本地视频已载入，正在自动解析");
+  analyzeVideo();
+});
+
+/* ============ AI API（统一由本地后端配置） ============ */
+function needBackend(){
+  if(location.protocol==="file:"){ toast("请双击「启动.bat」打开本应用，不要直接打开网页文件"); return true; }
+  return false;
+}
+
+/* chat/completions + JSON Mode。userContent 可为字符串或多模态 part 数组 */
+async function kimiChat(userContent, sys){
+  const r = await fetch(`/api/chat/completions`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      model: S.model,
+      messages: [
+        {role:"system", content: sys||"你是专业的视频内容分析与宠物科学专家。所有回答必须是合法 JSON。"},
+        {role:"user", content: userContent}
+      ],
+      response_format: {type:"json_object"}
+    })
+  });
+  if(!r.ok){
+    const e = await r.json().catch(()=>({}));
+    throw new Error(e.error?.message || `HTTP ${r.status}`);
+  }
+  const d = await r.json();
+  return parseModelJson(d.choices?.[0]?.message?.content || "{}");
+}
+
+function parseModelJson(text){
+  const clean=String(text||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
+  return JSON.parse(clean||"{}");
+}
+
+/* 视频理解使用 SSE 流式返回；不支持流式的兼容接口会自动按普通 JSON 处理。 */
+async function kimiChatStream(userContent,onContent){
+  const r = await fetch(`/api/chat/completions`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:S.model,
+      messages:[
+        {role:"system",content:"你是专业的视频内容分析与宠物科学专家。所有回答必须是合法 JSON。"},
+        {role:"user",content:userContent}
+      ],
+      response_format:{type:"json_object"},
+      stream:true
+    })
+  });
+  if(!r.ok){
+    const e=await r.json().catch(()=>({}));
+    throw new Error(e.error?.message||`HTTP ${r.status}`);
+  }
+  const ct=r.headers.get("content-type")||"";
+  if(!r.body || !ct.includes("text/event-stream")){
+    const d=await r.json();
+    const content=d.choices?.[0]?.message?.content||"{}";
+    onContent(content);
+    return parseModelJson(content);
+  }
+  const reader=r.body.getReader(), decoder=new TextDecoder();
+  let pending="", full="", streamError="";
+  function consume(line){
+    if(!line.startsWith("data:")) return;
+    const data=line.slice(5).trim();
+    if(!data || data==="[DONE]") return;
+    let event; try{event=JSON.parse(data);}catch(e){return;}
+    if(event.error){streamError=event.error.message||"模型流式输出失败";return;}
+    const delta=event.choices?.[0]?.delta?.content||event.choices?.[0]?.message?.content||"";
+    if(delta){full+=delta;onContent(full);}
+  }
+  while(true){
+    const part=await reader.read();
+    pending+=decoder.decode(part.value||new Uint8Array(),{stream:!part.done});
+    const lines=pending.split(/\r?\n/); pending=lines.pop()||"";
+    lines.forEach(consume);
+    if(part.done) break;
+  }
+  if(pending) consume(pending);
+  if(streamError) throw new Error(streamError);
+  if(!full.trim()) throw new Error("模型没有返回可解析内容");
+  return parseModelJson(full);
+}
+
+/* 视频统一走 files 上传（multipart，purpose=video），返回 file id，聊天中以 ms://<id> 引用 */
+async function uploadFile(file, onMsg, onProgress){
+  onMsg("正在准备视频…");
+  const fd = new FormData();
+  fd.append("file", file, file.name || "video.mp4");
+  fd.append("purpose", "video");
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open("POST",`/api/files`);
+    xhr.upload.onprogress=e=>{
+      if(e.lengthComputable && onProgress) onProgress(e.loaded,e.total);
+    };
+    xhr.onerror=()=>reject(new Error("上传失败：网络连接中断"));
+    xhr.onload=()=>{
+      let info={}; try{info=JSON.parse(xhr.responseText||"{}");}catch(e){}
+      if(xhr.status<200||xhr.status>=300) return reject(new Error("上传失败: "+(info.error?.message||`HTTP ${xhr.status}`)));
+      if(!info.id) return reject(new Error("上传失败：未返回文件 ID"));
+      resolve(info);
+    };
+    xhr.send(fd);
+  });
+}
+
+/* ============ 2. 解析:转写 + 画面描述 ============ */
+const PROMPT_EXTRACT = `请完整分析这个视频，输出 JSON（中文）:
+{
+ "transcript": "视频中所有对话/口播/旁白的完整逐字转写，标注大致时间点，如 [00:12] …。若无人声则写'（无人声/仅背景音乐）'",
+ "visual": "对视频画面内容的无信息损耗文字描述:按时间顺序详细描述出现的人物、宠物（品种/外观/动作/神态）、物品、场景、屏幕上出现的文字，以及宠物与人的每一个交互动作。力求看文字即可完整还原画面。"
+}`;
+
+function formatBytes(n){
+  if(n<1024) return n+" B";
+  if(n<1048576) return (n/1024).toFixed(1)+" KB";
+  return (n/1048576).toFixed(1)+" MB";
+}
+function setPipeStep(id,state,text){
+  const el=$(id); el.className="pipe-step "+(state||"");
+  const dot=el.querySelector(".dot");
+  dot.textContent=state==="done"?"✓":state==="error"?"!":id==="pipePrepare"?"1":id==="pipeUpload"?"2":id==="pipeThink"?"3":"4";
+  if(text) $(id+"Text").textContent=text;
+  if(state==="active") S.pipeStage=id;
+}
+/* ---- 透明管线①：浏览器本地真实抽取关键帧（video+canvas），让用户"看见 AI 要看的东西" ---- */
+async function extractKeyframes(file,seq){
+  if(!/^video\//.test(file.type||"")) return;
+  const strip=$("frameStrip"), scroll=$("frameScroll");
+  scroll.innerHTML=""; $("frameTitle").textContent="🖼 正在抽取关键帧…";
+  strip.classList.add("show");
+  const url=URL.createObjectURL(file);
+  const v=document.createElement("video");
+  v.muted=true; v.playsInline=true; v.preload="auto"; v.src=url;
+  try{
+    await new Promise((res,rej)=>{v.onloadedmetadata=res; v.onerror=()=>rej(new Error("无法读取视频"));});
+    const dur=v.duration;
+    if(!isFinite(dur)||dur<=0) throw new Error("时长未知");
+    const count=Math.min(16,Math.max(6,Math.ceil(dur/2)));
+    const cv=document.createElement("canvas");
+    const w=120, h=Math.max(40,Math.round(w*((v.videoHeight/v.videoWidth)||0.56)));
+    cv.width=w; cv.height=h;
+    const ctx=cv.getContext("2d");
+    for(let i=0;i<count;i++){
+      if(seq!==S.analysisSeq) return;                 // 已取消/换了新视频
+      await new Promise(res=>{const t=setTimeout(res,1500); v.onseeked=()=>{clearTimeout(t);res();}; v.currentTime=dur*(i+0.5)/count;});
+      ctx.drawImage(v,0,0,w,h);
+      const img=new Image(); img.src=cv.toDataURL("image/jpeg",.65);
+      scroll.appendChild(img); scroll.scrollLeft=scroll.scrollWidth;
+      $("frameTitle").textContent=`🖼 已抽取 ${i+1}/${count} 个关键帧`;
+    }
+    $("frameTitle").textContent=`🖼 已抽取 ${count} 个关键帧，AI 正在逐帧理解`;
+  }catch(e){ strip.classList.remove("show"); }        // 编码不支持等情况静默跳过，不影响主流程
+  finally{ URL.revokeObjectURL(url); }
+}
+
+/* ---- 通用抽帧器：按固定间隔抽帧，附带 16x9 缩略灰度数据用于帧差比较 ---- */
+async function grabFrames(file,interval,maxW,seq){
+  if(!/^video\//.test(file.type||"")) return [];
+  const url=URL.createObjectURL(file);
+  const v=document.createElement("video");
+  v.muted=true; v.playsInline=true; v.preload="auto"; v.src=url;
+  const frames=[];
+  try{
+    await new Promise((res,rej)=>{v.onloadedmetadata=res; v.onerror=()=>rej(new Error("无法读取视频"));});
+    const dur=v.duration;
+    if(!isFinite(dur)||dur<=0) return [];
+    const step=Math.max(interval,dur/160);          // 长视频自动放宽间隔，帧数封顶
+    const cv=document.createElement("canvas");
+    const w=Math.min(maxW,v.videoWidth||maxW), h=Math.max(40,Math.round(w*((v.videoHeight/v.videoWidth)||0.56)));
+    cv.width=w; cv.height=h;
+    const ctx=cv.getContext("2d",{willReadFrequently:true});
+    const g=document.createElement("canvas"); g.width=16; g.height=9;
+    const gctx=g.getContext("2d",{willReadFrequently:true});
+    for(let t=0;t<dur;t+=step){
+      if(seq!==S.analysisSeq) break;
+      await new Promise(res=>{const h2=setTimeout(res,1500); v.onseeked=()=>{clearTimeout(h2);res();}; v.currentTime=Math.min(t,Math.max(0,dur-0.05));});
+      ctx.drawImage(v,0,0,w,h);
+      gctx.drawImage(v,0,0,16,9);
+      frames.push({t:t,dataUrl:cv.toDataURL("image/jpeg",.7),lum:gctx.getImageData(0,0,16,9).data});
+    }
+  }catch(e){}
+  finally{ URL.revokeObjectURL(url); }
+  return frames;
+}
+/* 分块帧差：16x9 缩略图切 4x3=12 块，取变化最大的块。
+   全局平均会淹没局部小动作（狗全身不动只有鼻子抽动），分块取最大能保住这类帧 */
+function frameDiff(a,b){
+  let maxBlock=0;
+  for(let by=0;by<3;by++)for(let bx=0;bx<4;bx++){
+    let s=0,n=0;
+    for(let y=by*3;y<by*3+3;y++)for(let x=bx*4;x<bx*4+4;x++){
+      const i=(y*16+x)*4;
+      s+=Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2]); n++;
+    }
+    const m=s/n/3; if(m>maxBlock) maxBlock=m;
+  }
+  return maxBlock;
+}
+function fmtTime(t){ const m=Math.floor(t/60), s=(t%60).toFixed(1); return (m<10?"0":"")+m+":"+(+s<10?"0":"")+s; }
+
+/* ---- 通道③：字幕/画面文字（OCR2 逐帧识别，0.75 秒一帧，相邻去重成时间轴） ---- */
+async function subtitleChannel(file,seq){
+  S.subtitles="";
+  if(!S.ocr2) return;
+  const frames=await grabFrames(file,0.75,640,seq);
+  if(seq!==S.analysisSeq||!frames.length) return;
+  $("liveOutput").classList.add("show");
+  $("liveSubPane").style.display="block";
+  $("liveSub").textContent="正在识别画面文字…";
+  const texts=new Array(frames.length).fill("");
+  let idx=0, done=0;
+  async function worker(){
+    while(idx<frames.length){
+      const i=idx++;
+      if(seq!==S.analysisSeq) return;
+      try{
+        const r=await fetch("/ocr/recognize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:frames[i].dataUrl})});
+        const d=await r.json().catch(()=>({}));
+        texts[i]=(d.text||"").trim();
+      }catch(e){}
+      done++;
+      if(seq===S.analysisSeq&&done%4===0) $("liveSub").textContent=`正在识别画面文字… ${done}/${frames.length}`;
+    }
+  }
+  await Promise.all([worker(),worker(),worker()]);
+  if(seq!==S.analysisSeq) return;
+  const lines=[]; let prev="";
+  frames.forEach((f,i)=>{
+    const t=texts[i].replace(/\s+/g," ").trim();
+    if(t&&t!==prev) lines.push(`[${fmtTime(f.t)}] ${t}`);
+    if(t) prev=t;
+  });
+  S.subtitles=lines.join("\n");
+  $("liveSub").textContent=S.subtitles||"（画面中未发现文字）";
+  if(!S.subtitles) setTimeout(()=>{ if(seq===S.analysisSeq) $("liveSubPane").style.display="none"; },1200);
+}
+
+/* ---- 通道④：微动作复核。4帧/秒密集抽帧 → 帧差丢冗余（视觉压缩）→ 变化关键帧发模型细看 ---- */
+async function microChannel(file,seq){
+  S.micro="";
+  const frames=await grabFrames(file,0.25,320,seq);
+  if(seq!==S.analysisSeq||frames.length<4) return;
+  const kept=[frames[0]];
+  for(const f of frames.slice(1)){
+    if(frameDiff(f.lum,kept[kept.length-1].lum)>6) kept.push(f);   // 画面几乎没变的帧直接丢
+    if(kept.length>=30) break;
+  }
+  if(kept.length<3) return;
+  try{
+    const content=kept.map(f=>({type:"image_url",image_url:{url:f.dataUrl}}));
+    content.push({type:"text",text:`以上是同一视频按时间顺序保留的 ${kept.length} 个画面变化关键帧，时间点依次为：${kept.map(f=>fmtTime(f.t)).join("、")}。请逐一对比相邻帧，找出宠物的细微动作与状态变化——耳朵、尾巴、鼻子（如抽动/嗅闻）、嘴部、眼神、身体姿态、毛发状态的微小变化，并给出每个变化的时间点；只描述画面确实可见的变化，不要推测。输出 JSON：{"micro":"带时间点的微动作观察，一段文字"}`});
+    const out=await kimiChat(content);
+    if(seq!==S.analysisSeq||!out.micro) return;
+    S.micro=out.micro;
+    if(S.extractDone){                     // 主解析已完成 → 直接并入画面描述
+      S.visual=(S.visual||"")+"\n\n【微动作观察（密集帧复核）】\n"+out.micro;
+      $("liveVisual").textContent=S.visual;
+    }                                      // 否则先存着，setExtractResult 会来合并
+  }catch(e){}
+}
+
+/* ---- 透明管线②：从模型流式返回的文本里实时"点亮"识别到的元素 ---- */
+const ENTITY_DICT=["小猫","猫咪","橘猫","奶牛猫","小狗","狗狗","幼犬","田园犬","金毛","柯基","柴犬","猫","狗","犬","兔子","仓鼠","鹦鹉","牵引绳","项圈","胸背带","猫砂盆","猫爬架","狗粮","猫粮","冻干","零食","罐头","玩具","逗猫棒","飞盘","餐桌","沙发","地毯","浴室","毛巾","吹风机","指甲剪","航空箱","饮水机","水碗","食盆","草地","公园","石板路","汽车","车位","主人","小朋友","尾巴","爪子","耳朵"];
+const ENTITY_SCAN=[...ENTITY_DICT].sort((a,b)=>b.length-a.length);
+function updateEntityChips(text){
+  let added=false;
+  for(const w of ENTITY_SCAN){
+    if(S.chipsFound.has(w)||!text.includes(w)) continue;
+    let dup=false;
+    for(const f of S.chipsFound){ if(f.includes(w)||w.includes(f)){dup=true;break;} }
+    S.chipsFound.add(w);
+    if(dup) continue;                                  // "猫咪"已亮就不再单独亮"猫"
+    const c=document.createElement("span"); c.className="chip"; c.textContent=w;
+    $("chipWrap").appendChild(c); added=true;
+  }
+  if(added) $("chipRow").classList.add("show");
+}
+
+/* 等待死区的轮换安抚文案：让用户始终看到"有事情在发生" */
+const WAIT_MSGS=[
+  "正在聆听视频中的人声和声音…",
+  "AI 正在逐帧观看画面…",
+  "视频越长耗时越久，请放心等待…",
+  "还在认真分析中，就快好了…"
+];
+function startPipeline(file){
+  clearInterval(S.pipeTimer);
+  S.pipeStarted=Date.now(); S.pipeStage="pipePrepare"; S.streamGot=false;
+  $("pipeHeadTitle").textContent="正在理解这段视频";
+  $("pipeEta").style.display="block";
+  $("btnCancelAnalyze").style.display="inline";
+  $("btnGotoCards").style.display="none";
+  $("frameStrip").classList.remove("show"); $("frameScroll").innerHTML="";
+  $("chipRow").classList.remove("show"); $("chipWrap").innerHTML="";
+  S.chipsFound=new Set();
+  S.subtitles=""; S.micro=""; S.subJob=null; S.microJob=null; S.extractDone=false;
+  $("liveSubPane").style.display="none";
+  $("liveSub").textContent="正在识别画面文字…";
+  $("secExtract").style.display="block";
+  $("pipeline").classList.add("show");
+  ["pipePrepare","pipeUpload","pipeThink","pipeFinish"].forEach(id=>setPipeStep(id,"",id==="pipePrepare"?"等待视频":id==="pipeUpload"?"等待识别声音":id==="pipeThink"?"等待理解画面":"等待整理"));
+  $("pipeUploadBar").style.width="0%";
+  $("liveOutput").classList.remove("show");
+  $("liveTranscript").textContent="正在识别…";
+  $("liveVisual").textContent="等待画面分析…";
+  $("pipeTech").classList.remove("show");
+  $("pipeTech").open=false;
+  $("pipeTechText").textContent="";
+  setPipeStep("pipePrepare","active",`${file.name||"视频"} · ${formatBytes(file.size)}`);
+  S.pipeTimer=setInterval(()=>{
+    const sec=Math.max(0,Math.floor((Date.now()-S.pipeStarted)/1000));
+    $("pipeTime").textContent=sec+" 秒";
+    /* 模型开始返回内容前，每 6 秒换一句文案，避免"卡死"的错觉 */
+    if(!S.streamGot && S.pipeStage==="pipeUpload")
+      $("pipeUploadText").textContent=WAIT_MSGS[Math.floor(sec/6)%WAIT_MSGS.length];
+  },1000);
+  $("pipeTime").textContent="0 秒";
+}
+function stopPipelineClock(){ clearInterval(S.pipeTimer); S.pipeTimer=null; }
+function finishPipeline(){
+  stopPipelineClock();
+  $("pipeHeadTitle").textContent="✅ 视频已理解";
+  $("pipeTime").textContent="共用时 "+Math.max(1,Math.floor((Date.now()-S.pipeStarted)/1000))+" 秒";
+  $("pipeEta").style.display="none";
+  $("btnCancelAnalyze").style.display="none";
+  $("btnGotoCards").style.display="block";
+}
+function cancelAnalyze(){
+  S.analysisSeq=(S.analysisSeq||0)+1;   // 让进行中的请求结果被忽略
+  stopPipelineClock();
+  $("pipeline").classList.remove("show");
+  $("btnRetryAnalyze").style.display="block";
+  busy("stAnalyze");
+  toast("已取消，可点击「重新解析」再试");
+}
+function gotoCardsStep(){ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"}); }
+function friendlyAnalyzeError(message){
+  const text=String(message||"");
+  if(/temperature/i.test(text)) return "当前模型参数不兼容，请重试或更换模型。";
+  if(/files|上传失败|file id/i.test(text)) return "视频准备失败，请检查连接后重试。";
+  if(/video_url|ms:\/\/|不支持.*视频|vision/i.test(text)) return "当前模型不能直接理解视频，请更换支持视频的模型。";
+  if(/network|fetch|连接|timeout|超时/i.test(text)) return "连接中断，请检查服务后重试。";
+  if(/json|parse|格式/i.test(text)) return "结果整理失败，可以重试一次。";
+  return "这次没有解析成功，请重试。";
+}
+function pipelineError(message){
+  $("pipeHeadTitle").textContent="⚠️ 解析遇到问题";
+  $("pipeEta").style.display="none";
+  $("btnCancelAnalyze").style.display="none";
+  if(S.pipeStage) setPipeStep(S.pipeStage,"error",friendlyAnalyzeError(message));
+  $("pipeTechText").textContent=String(message||"未知错误");
+  $("pipeTech").classList.add("show");
+  stopPipelineClock();
+}
+function partialJsonString(raw,key){
+  const match=new RegExp('"'+key+'"\\s*:\\s*"').exec(raw);
+  if(!match) return "";
+  let out="", i=match.index+match[0].length;
+  for(;i<raw.length;i++){
+    const ch=raw[i];
+    if(ch==='"') break;
+    if(ch!=="\\"){out+=ch;continue;}
+    i++; if(i>=raw.length) break;
+    const next=raw[i];
+    if(next==="n") out+="\n";
+    else if(next==="r") out+="\r";
+    else if(next==="t") out+="\t";
+    else if(next==="u" && /^[0-9a-f]{4}$/i.test(raw.slice(i+1,i+5))){out+=String.fromCharCode(parseInt(raw.slice(i+1,i+5),16));i+=4;}
+    else out+=next;
+  }
+  return out;
+}
+function updateLiveOutput(content){
+  S.streamGot=true;
+  $("liveOutput").classList.add("show");
+  const transcript=partialJsonString(content,"transcript");
+  const visual=partialJsonString(content,"visual");
+  updateEntityChips(transcript+" "+visual);
+  if(transcript){
+    const el=$("liveTranscript");
+    el.textContent=transcript;
+    el.scrollTop=el.scrollHeight;   // 新文字持续滚入视野，让用户看见进展
+    if(!$("pipeUpload").classList.contains("done")) setPipeStep("pipeUpload","active","正在生成对话脚本…");
+  }
+  if(visual){
+    if(!$("pipeUpload").classList.contains("done")) setPipeStep("pipeUpload","done",transcript?"对话与声音识别完成":"未检测到清晰人声");
+    setPipeStep("pipeThink","active","正在还原动作、场景和画面文字…");
+    const el=$("liveVisual");
+    el.textContent=visual;
+    el.scrollTop=el.scrollHeight;
+  }
+}
+
+async function analyzeVideo(){
+  if(needBackend()) return;
+  await S.configReady;
+  if(!S.file) return toast("请先载入本地视频文件或可跨域访问的直链");
+  if(S.file.size > 95*1024*1024) return toast("视频超过 95MB，请先剪辑或压缩后重新选择");
+  const file=S.file, seq=(S.analysisSeq||0)+1;
+  S.analysisSeq=seq;
+  $("btnRetryAnalyze").style.display="none";
+  startPipeline(file);
+  extractKeyframes(file,seq);                        // 与上传并行，本地真实抽帧
+  S.subJob=subtitleChannel(file,seq).catch(()=>{});   // 字幕通道并行跑
+  S.microJob=microChannel(file,seq).catch(()=>{});    // 微动作通道也并行跑，不占额外时长
+  try{
+    const info = await uploadFile(file, ()=>{},(loaded,total)=>{
+      if(seq!==S.analysisSeq) return;
+      const pct=Math.min(100,Math.round(loaded/total*100));
+      $("pipeUploadBar").style.width=pct+"%";
+      $("pipePrepareText").textContent=`正在准备视频 ${pct}%`;
+    });
+    if(seq!==S.analysisSeq) return;
+    $("pipeUploadBar").style.width="100%";
+    setPipeStep("pipePrepare","done","视频准备好了");
+    setPipeStep("pipeUpload","active","正在聆听视频中的人声和声音…");
+    $("liveOutput").classList.add("show");
+    const out = await kimiChatStream([
+      { type:"video_url", video_url:{ url:`ms://${info.id}` } },
+      { type:"text", text:PROMPT_EXTRACT }
+    ],updateLiveOutput);
+    if(seq!==S.analysisSeq) return;
+    setPipeStep("pipeUpload","done",out.transcript?"对话与声音识别完成":"未检测到清晰人声");
+    setPipeStep("pipeThink","done",out.visual?"画面内容理解完成":"未获得画面描述");
+    setPipeStep("pipeFinish","active","正在把内容整理成易读结果…");
+    setExtractResult(out.transcript||"", out.visual||"");
+    $("liveTranscript").textContent=out.transcript||"（无对话内容）";
+    $("liveVisual").textContent=out.visual||"（无画面描述）";
+    setPipeStep("pipeFinish","done","内容整理完成，可以继续生成判断卡片");
+    finishPipeline();
+    toast("✅ 解析完成，正在自动生成判断卡片…");
+  }catch(e){
+    if(seq===S.analysisSeq){ pipelineError(e.message); $("btnRetryAnalyze").style.display="block"; toast(friendlyAnalyzeError(e.message)); }
+  }
+  finally{ if(seq===S.analysisSeq) busy("stAnalyze"); }
+}
+function resetExtractForNewFile(){
+  S.analysisSeq=(S.analysisSeq||0)+1;
+  stopPipelineClock();
+  S.transcript=""; S.visual=""; S.comments=[];
+  $("secExtract").style.display="none";
+  $("secCards").style.display="none";
+  $("pipeline").classList.remove("show");
+  $("cmtBox").classList.remove("show");
+  $("detectList").classList.remove("show");
+  $("cardArea").style.display="none";
+  $("btnCards").disabled=true;
+  $("btnCards").style.display="none";
+  $("btnRetryAnalyze").style.display="none";
+  busy("stAnalyze");
+}
+function useManualText(){
+  const t = manualText.value.trim();
+  if(!t) return toast("请先粘贴文字内容");
+  $("manualBox").open=false;
+  $("secExtract").style.display="block";
+  $("pipeline").classList.add("show");
+  $("liveOutput").classList.add("show");
+  $("pipeHeadTitle").textContent="✅ 内容已就绪";
+  $("pipeTime").textContent="已完成";
+  $("pipeEta").style.display="none";
+  $("btnCancelAnalyze").style.display="none";
+  $("btnGotoCards").style.display="block";
+  setPipeStep("pipePrepare","done","已收到文字内容");
+  setPipeStep("pipeUpload","done","已使用提供的文案");
+  setPipeStep("pipeThink","done","没有提供视频画面");
+  setPipeStep("pipeFinish","done","内容整理完成，可以继续生成判断卡片");
+  setExtractResult(t, "（用户手动提供文案，无画面描述）");
+  toast("✅ 已使用手动文本，正在自动生成判断卡片…");
+}
+function setExtractResult(tr, vi){
+  S.transcript=tr;
+  S.visual=vi+(S.micro?"\n\n【微动作观察（密集帧复核）】\n"+S.micro:"");
+  S.extractDone=true;
+  $("liveOutput").classList.add("show");
+  $("liveTranscript").textContent=tr||"（没有识别到对话内容）";
+  $("liveVisual").textContent=S.visual||"（没有获得画面描述）";
+  $("btnCards").disabled=false;
+  autoFlow();               // 全自动：模拟评论 → 生成卡片，无需用户点击
+}
+async function autoFlow(){
+  const seq=S.analysisSeq;
+  const jobs=[generateMockComments().catch(()=>{})];   // 评论
+  if(S.microJob) jobs.push(S.microJob);                // 微动作（解析开始时已并行启动）
+  if(S.subJob) jobs.push(S.subJob);                    // 字幕（同上）
+  /* 最多再等 25 秒：辅助通道到点没跑完就先出卡，结果来了也不再等它 */
+  await Promise.race([Promise.allSettled(jobs), new Promise(r=>setTimeout(r,25000))]);
+  if(seq!==S.analysisSeq) return;                      // 期间换了视频/取消则中止
+  generateCards();
+}
+
+/* ---- 模拟评论区：发现"大众关注点"，反哺卡片选题（演示用，界面已标注模拟数据） ---- */
+const SYS_COMMENTS="你是刷了十年抖音、精通评论区文化的'互联网嘴替'，写出的评论必须有活人感，像真实网友随手敲出来的，不能有AI味。所有回答必须是合法 JSON。";
+/* 评论路数默认值；服务端若有 评论风格.json 会通过 /app-config 覆盖（改配置文件即可换热梗，无需改代码） */
+const DEFAULT_COMMENT_STYLES={styles:[
+  {name:"质疑担忧党",example:"这样真的没事吗？我家也这样，看完慌了"},
+  {name:"经验帖大爷",example:"养了8年金毛的过来人说一句，这个真不行"},
+  {name:"神评调侃",example:"我笑麻了，猫猫是真的懂营业"},
+  {name:"拟宠口吻",example:"尊嘟假嘟，主人你干嘛~"},
+  {name:"云养宠党",example:"存了存了，下辈子一定养"},
+  {name:"蹲后续党",example:"蹲一个后续，课代表在哪"}
+],namingHint:"昵称也要有网感，如'猫奴本奴''狗都不理我'，别叫'网友123'"};
+const PROMPT_COMMENTS=(tr,vi)=>{
+  const cfg=(S.commentStyles&&Array.isArray(S.commentStyles.styles)&&S.commentStyles.styles.length)?S.commentStyles:DEFAULT_COMMENT_STYLES;
+  return `下面是一个宠物类短视频的对话脚本和画面描述：
+
+【对话脚本】
+${tr}
+
+【画面描述】
+${vi}
+
+模拟这个视频在抖音评论区最可能出现的 7-8 条热门评论。要求：
+
+1. 网感要真：短句、口语化、可带 emoji 和语气词；点赞数要有梯度——1-2 条几千赞的"神评"，其余几十到几百
+2. 评论类型要杂，参考真实抖音宠物区的常见路数（不要照抄，要贴合本视频内容改写）：
+${cfg.styles.map(s=>`   - ${s.name}："${s.example}"`).join("\n")}
+3. 【最重要】至少 3 条要对视频中宠物相关的具体做法提出疑问、担忧或争论，并排在最前面——这些是后续科普选题的来源
+4. 每条评论都要紧扣这个视频的具体画面和情节，禁止写放哪个视频下面都成立的万能评论
+
+输出 JSON：{"comments":[{"user":"昵称（${cfg.namingHint||"要有网感，别叫'网友123'"}）","text":"评论内容","likes":点赞数字}]}`;
+};
+
+async function generateMockComments(){
+  const seq=S.analysisSeq, box=$("cmtBox");
+  S.comments=[];
+  box.classList.add("show");
+  $("cmtItems").innerHTML='<div class="cmt-item" style="color:var(--sub)">正在根据视频内容模拟评论区…</div>';
+  try{
+    const out=await kimiChat(PROMPT_COMMENTS(S.transcript,S.visual),SYS_COMMENTS);
+    if(seq!==S.analysisSeq) return;
+    const arr=(out.comments||[]).filter(c=>c&&c.text).slice(0,8);
+    if(!arr.length) throw new Error("empty");
+    S.comments=arr;
+    $("cmtItems").innerHTML="";
+    arr.forEach(c=>{
+      const d=document.createElement("div"); d.className="cmt-item";
+      const likes=document.createElement("span"); likes.className="cmt-likes"; likes.textContent="👍 "+(c.likes||0);
+      const user=document.createElement("div"); user.className="cmt-user"; user.textContent="@"+(c.user||"网友");
+      const text=document.createElement("div"); text.textContent=c.text;
+      d.append(likes,user,text);
+      $("cmtItems").appendChild(d);
+    });
+  }catch(e){ if(seq===S.analysisSeq) box.classList.remove("show"); }
+}
+
+/* ============ 3+4. 要点卡片 ============ */
+const PROMPT_CARDS = (tr,vi,cm,sub)=>`你是资深兽医与宠物行为学专家。下面是一个视频的对话脚本和画面描述:
+
+【对话脚本】
+${tr}
+
+【画面描述】
+${vi}
+${sub?`
+【画面文字/字幕时间轴（逐帧精确识别）】
+${sub}
+`:""}${cm&&cm.length?`
+【评论区热门评论（模拟数据，代表观众关注点）】
+${cm.map(c=>`- ${c.text}（赞 ${c.likes||0}）`).join("\n")}
+
+优先围绕评论区被质疑、被讨论、引发争议的做法生成卡片——这些是观众最想得到科学判定的点；覆盖之后再补充其余重要要点。
+`:""}
+任务:找出其中所有与"宠物呵护"相关的要点——包括宠物食物与喂养、宠物动作/肢体语言的含义、护理方式（洗澡/驱虫/剪指甲/就医等）、训练互动、居住环境安全等一切与宠物健康福祉相关的行为或说法。
+对每个要点，生成一张判断卡片，输出 JSON 对象，格式为 {"cards": [卡片数组]}，每张卡片:
+{
+ "claim": "以'视频中…'开头陈述视频里的一个具体做法或说法；表达可以口语化、带点网感（像抖音宠物科普博主的选题标题，如'视频中主人看狗狗可怜巴巴的，直接把桌上的葡萄喂了'），但做法本身必须说得具体清楚、无歧义（中文，一句话）",
+ "verdict": "right 或 wrong（该做法/说法从科学养宠角度是否正确）",
+ "explanation": "严谨正经的科学解释，此字段禁止玩梗、禁止网络用语：为什么对/错，正确做法应是什么，涉及的生理/行为学原理（中文，3-5句，专业科普口吻）",
+ "source": "该解释的依据来源，如 WSAVA 全球营养指南、AAHA 犬猫护理指南、《默克兽医手册》、美国兽医协会(AVMA)、国际猫科医学会(ISFM)等具体机构/文献名称"
+}
+只输出与宠物相关的要点。若视频与宠物完全无关，输出 {"cards": []}。`;
+
+/* 从流式 JSON 里提取某个字段的所有"已完整"字符串值 */
+function partialCardFields(raw,key){
+  const out=[], re=new RegExp('"'+key+'"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"','g');
+  let m;
+  while((m=re.exec(raw))){ try{ out.push(JSON.parse('"'+m[1]+'"')); }catch(e){ out.push(m[1]); } }
+  return out;
+}
+/* 悬念钩子：行为点标题逐条冒出，但不透露对错——答案留给用户去判断 */
+function renderDetect(raw){
+  const claims=partialCardFields(raw,"claim");
+  if(!claims.length) return;
+  const sources=partialCardFields(raw,"source");
+  $("detectList").classList.add("show");
+  $("detectHead").textContent=`🔍 检测到 ${claims.length} 个行为点，正在比对科学养宠知识库…`;
+  const box=$("detectItems");
+  claims.forEach((c,i)=>{
+    let el=box.children[i];
+    if(!el){
+      el=document.createElement("div"); el.className="detect-item";
+      el.innerHTML='<span class="st">⏳</span><span class="tx"></span>';
+      box.appendChild(el);
+    }
+    el.querySelector(".tx").textContent=(i+1)+". "+c;
+    el.querySelector(".st").textContent = sources[i]!==undefined ? "✓" : "⏳";
+  });
+}
+async function generateCards(){
+  if(needBackend()) return;
+  await S.configReady;
+  if(!S.transcript && !S.visual) return toast("请先完成第 2 步");
+  const seq=S.analysisSeq;
+  const btn=$("btnCards"); btn.disabled=true;
+  $("secCards").style.display="block";
+  $("detectItems").innerHTML="";
+  $("detectList").classList.remove("show");
+  $("cardArea").style.display="none";
+  busy("stCards","AI 正在回看内容，寻找和宠物有关的行为点…");
+  try{
+    const out = await kimiChatStream(PROMPT_CARDS(S.transcript, S.visual, S.comments||[], S.subtitles||""), renderDetect);
+    if(seq!==S.analysisSeq) return;               // 期间换了视频则丢弃结果
+    const arr = Array.isArray(out) ? out : out.cards;
+    if(!Array.isArray(arr) || !arr.length){
+      $("detectList").classList.remove("show");
+      $("secCards").style.display="none";
+      toast("未在视频中发现养宠相关要点"); return;
+    }
+    $("detectHead").textContent=`✅ 共检测到 ${arr.length} 个行为点，哪些做法科学、哪些踩坑？你来判断`;
+    $("detectItems").querySelectorAll(".st").forEach(s=>s.textContent="✓");
+    setTimeout(()=>{
+      if(seq!==S.analysisSeq) return;
+      $("detectList").classList.remove("show");
+      startCards(arr);
+      btn.style.display="block";                  // 出卡后才露出"重新生成"兜底
+    },900);
+  }catch(e){
+    if(seq!==S.analysisSeq) return;
+    $("detectList").classList.remove("show");
+    btn.style.display="block";                    // 失败也给用户手动重试入口
+    toast("生成失败: "+e.message);
+  }
+  finally{ if(seq===S.analysisSeq){ busy("stCards"); btn.disabled=false; } }
+}
+
+function startCards(arr){
+  S.cards=arr; S.idx=0; S.score=0; S.answered=0;
+  $("cardArea").style.display="block";
+  renderCard();
+  $("cardArea").scrollIntoView({behavior:"smooth"});
+}
+function renderCard(){
+  const c=S.cards[S.idx];
+  cardProgress.textContent=`第 ${S.idx+1} / ${S.cards.length} 张`;
+  cardClaim.textContent=c.claim;
+  judgeBtns.style.display="flex";
+  verdictBox.style.display="none"; verdictBox.className="verdict";
+  btnNext.style.display="none";
+  scoreText.textContent=`判对 ${S.score} / ${S.answered}`;
+}
+function judge(userSaysRight){
+  const c=S.cards[S.idx];
+  const actual = c.verdict==="right";
+  const hit = userSaysRight===actual;
+  S.answered++; if(hit) S.score++;
+  judgeBtns.style.display="none";
+  verdictBox.className="verdict "+(hit?"right":"wrong");
+  verdictBox.style.display="block";
+  verdictHead.textContent=(hit?"🎉 判断正确！":"😅 判断失误！")+` 视频中这个做法其实是${actual?"✅ 科学的":"❌ 不科学的"}`;
+  verdictExp.textContent=c.explanation;
+  verdictSrc.textContent="📚 依据来源："+(c.source||"—");
+  scoreText.textContent=`判对 ${S.score} / ${S.answered}`;
+  btnNext.style.display = S.idx < S.cards.length-1 ? "inline-block" : "none";
+  if(S.idx===S.cards.length-1){
+    setTimeout(()=>toast(`全部完成！共判对 ${S.score}/${S.cards.length} 张 🏆`),400);
+  }
+}
+function nextCard(){ S.idx++; renderCard(); }
+</script>
+</body>
+</html>
